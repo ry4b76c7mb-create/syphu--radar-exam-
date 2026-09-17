@@ -1,0 +1,13 @@
+name: Python云端测试
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 运行Python测试
+        run: python 测试.py
