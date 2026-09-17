@@ -1,42 +1,57 @@
 import requests
-import re
 
 print("沈药校园信息雷达")
-print("开始提取公众号身份信息……")
+print("开始测试微信登录态……")
 print()
 
-url = "https://mp.weixin.qq.com/s/_bKHQm8QKt_u8Q91Rb5pQg"
+
+# 这里暂时先放测试位置
+cookie = "你的微信Cookie"
+
 
 headers = {
-    "User-Agent": "Mozilla/5.0"
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        " AppleWebKit/537.36 Chrome/120 Safari/537.36"
+    ),
+    "Cookie": cookie
 }
 
-r = requests.get(url, headers=headers)
 
-html = r.text
+url = "https://mp.weixin.qq.com/cgi-bin/searchbiz"
 
-print("网页长度：", len(html))
-print()
 
-keys = [
-    "bizuin",
-    "__biz",
-    "fakeid",
-    "nickname",
-    "沈药学工",
-    "SYPHU_XSC"
-]
+params = {
+    "action": "search_biz",
+    "begin": "0",
+    "count": "5",
+    "query": "沈药学工",
+    "lang": "zh_CN",
+    "f": "json"
+}
 
-for key in keys:
-    print("\n========", key, "========")
 
-    positions = [m.start() for m in re.finditer(key, html)]
+try:
 
-    print("出现次数：", len(positions))
+    print("正在请求微信公众号搜索接口……")
+    print()
 
-    for p in positions[:3]:
-        start = max(0, p-150)
-        end = min(len(html), p+300)
+    r = requests.get(
+        url,
+        headers=headers,
+        params=params,
+        timeout=20
+    )
 
-        print(html[start:end])
-        print("----------------")
+
+    print("状态码：", r.status_code)
+
+    print()
+
+    print("返回内容：")
+    print(r.text[:1000])
+
+
+except Exception as e:
+
+    print("错误：", e)
