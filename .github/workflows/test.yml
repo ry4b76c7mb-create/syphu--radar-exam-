@@ -9,5 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: 获取仓库代码
+
+        uses: actions/checkout@v4
+
       - name: 运行Python测试
-        run: python 测试.py
+
+        run: python test.py
