@@ -1,20 +1,11 @@
 import requests
-import json
+import re
 
 print("沈药校园信息雷达")
-print("开始测试公众号搜索……")
+print("开始分析真实微信文章……")
 print()
 
-url = "https://mp.weixin.qq.com/cgi-bin/searchbiz"
-
-params = {
-    "action": "search_biz",
-    "begin": "0",
-    "count": "5",
-    "query": "沈药学工",
-    "lang": "zh_CN",
-    "f": "json"
-}
+article_url = "https://mp.weixin.qq.com/s/_bKHQm8QKt_u8Q91Rb5pQg"
 
 headers = {
     "User-Agent": (
@@ -25,12 +16,12 @@ headers = {
 }
 
 try:
-    print("正在搜索公众号：沈药学工")
+    print("正在访问沈药学工真实文章：")
+    print(article_url)
     print()
 
     response = requests.get(
-        url,
-        params=params,
+        article_url,
         headers=headers,
         timeout=20,
         allow_redirects=True
@@ -38,30 +29,57 @@ try:
 
     print("状态码：", response.status_code)
     print("最终地址：", response.url)
-    print("返回长度：", len(response.text))
+    print("网页长度：", len(response.text))
     print()
 
-    print("返回内容前500个字符：")
-    print("--------------------------------")
-    print(response.text[:500])
-    print("--------------------------------")
+    html = response.text
+
+    # 尝试寻找公众号内部标识
+    patterns = {
+        "__biz": r'__biz["\']?\s*[:=]\s*["\']([^"\']+)',
+        "biz": r'["\']biz["\']?\s*[:=]\s*["\']([^"\']+)',
+        "nickname": r'["\']nickname["\']?\s*[:=]\s*["\']([^"\']+)',
+        "appmsgid": r'["\']appmsgid["\']?\s*[:=]\s*["\']?(\d+)',
+    }
+
+    print("开始寻找文章中的内部信息……")
     print()
 
-    # 尝试解析 JSON
-    try:
-        data = response.json()
+    found = False
 
-        print("检测到 JSON 返回")
-        print("JSON 内容：")
-        print(json.dumps(data, ensure_ascii=False, indent=2)[:3000])
+    for name, pattern in patterns.items():
+        matches = re.findall(pattern, html, re.IGNORECASE)
 
-    except Exception:
-        print("这次返回的内容不是标准 JSON。")
-        print("这通常意味着还需要微信登录会话。")
+        if matches:
+            found = True
+            # 去重
+            unique = list(dict.fromkeys(matches))
+
+            print("找到：", name)
+            for value in unique[:10]:
+                print("  ", value)
+            print()
+
+    if not found:
+        print("暂时没有找到明显的公众号内部标识。")
+        print()
+
+    # 顺便检查几个关键词
+    keywords = [
+        "沈药学工",
+        "SYPHU_XSC",
+        "__biz",
+        "fakeid",
+        "appmsgid"
+    ]
+
+    print("关键词检查：")
+    for keyword in keywords:
+        print(keyword, "→", keyword in html)
+
+    print()
+    print("真实文章分析结束。")
 
 except Exception as e:
     print("访问失败：", type(e).__name__)
     print("错误信息：", e)
-
-print()
-print("公众号搜索测试结束。")
