@@ -1,12 +1,14 @@
 import requests
-from urllib.parse import quote
 
 print("沈药校园信息雷达")
-print("开始检查百度返回内容……")
+print("开始测试微信服务器连接……")
 print()
 
-query = 'site:mp.weixin.qq.com/s/ "沈药学工"'
-url = "https://www.baidu.com/s?wd=" + quote(query)
+urls = [
+    "https://mp.weixin.qq.com",
+    "https://mp.weixin.qq.com/cgi-bin/searchbiz",
+    "https://mp.weixin.qq.com/cgi-bin/appmsg",
+]
 
 headers = {
     "User-Agent": (
@@ -16,42 +18,25 @@ headers = {
     )
 }
 
-try:
-    response = requests.get(
-        url,
-        headers=headers,
-        timeout=15
-    )
+for url in urls:
+    try:
+        print("正在访问：", url)
 
-    html = response.text
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=15,
+            allow_redirects=True
+        )
 
-    print("百度状态码：", response.status_code)
-    print("网页长度：", len(html), "字符")
-    print()
+        print("状态码：", response.status_code)
+        print("最终地址：", response.url)
+        print("网页长度：", len(response.text))
+        print()
 
-    checks = [
-        "沈药学工",
-        "mp.weixin.qq.com",
-        "百度安全验证",
-        "验证码",
-        "安全验证",
-        "访问异常",
-        "请完成验证",
-    ]
+    except Exception as e:
+        print("访问失败：", type(e).__name__)
+        print("错误信息：", e)
+        print()
 
-    print("关键词检查：")
-
-    for word in checks:
-        print(word, "→", "找到" if word in html else "没有")
-
-    print()
-    print("百度返回内容前 1000 个字符：")
-    print("--------------------------------")
-    print(html[:1000])
-    print("--------------------------------")
-    print()
-    print("检查结束。")
-
-except Exception as e:
-    print("发生错误：", type(e).__name__)
-    print("错误信息：", e)
+print("微信服务器探针结束。")
