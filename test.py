@@ -1,0 +1,5 @@
+print("沈药校园信息雷达")
+print("Python 云端测试成功！")
+print("当前状态：OK")
+print("我们开始搭建雷达")
+print("🚀")
